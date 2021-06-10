@@ -12,7 +12,7 @@ const Landing = () => {
                 <div className="d-flex flex-column text-white py-3 align-items-center">
                     <h3 className="h5 text-center">Stay in control of <br />your finances any time.</h3>
                     <h1 className="font-weight-bold text-center pb-3">Open The Account's You Need</h1>
-                    <a className="font-weight-bold btn btn-dark btn-lg mb-1 px-5 shadow" href="#">Get Started</a>
+                    <a className="font-weight-bold btn btn-dark btn-lg mb-1 px-5 shadow" href="https://www.meritamerica.org/">Get Started</a>
                 </div>
             </div>
             <div className="container">

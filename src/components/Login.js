@@ -4,15 +4,18 @@ import { AuthorizationContext } from '../AuthorizationContext'
 import { Form, Button } from 'react-bootstrap';
 import axios from 'axios'
 import { BASE_URL_ADD } from '../ResourceEndpoints'
+import jwt_decode from "jwt-decode";
+import { Redirect } from 'react-router-dom'
 
 function Login() {
-    const [auth, setAuth] = useContext(AuthorizationContext)
-
-    // const [jwt, setJwt] = useState('');
-    // const [role, setRole] = useState('')
+    const [store, setStore] = useContext(AuthorizationContext)
+    const [isLoggedIn, setLoggedIn] = useState(false)
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    //for redirect
+
+    useEffect(() => {
+        setLoggedIn(JSON.parse(localStorage.getItem('isLoggedIn')))
+    }, [isLoggedIn])
 
     //For page redirect
     const history = useHistory();
@@ -22,7 +25,9 @@ function Login() {
         password: password
     }
 
-    // useEffect()
+    if (isLoggedIn) {
+        return <Redirect to="/" />
+    }
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -32,15 +37,24 @@ function Login() {
 
         //Call the authentication endpoint
         axios.post(BASE_URL_ADD, user).then(res => {
-            setAuth({
-                jwt: res.data.jwt,
-                role: res.data.roles,
-                isLoggedIn: true
+            const jwt = res.data.jwt
+            const role = res.data.roles
+            const isLoggedIn = true
+            const decodedjwt = jwt_decode(res.data.jwt);
+            const username = decodedjwt.sub;
+
+            localStorage.setItem('jwt', JSON.stringify(jwt))
+            localStorage.setItem('role', JSON.stringify(role))
+            localStorage.setItem('isLoggedIn', JSON.stringify(isLoggedIn))
+            localStorage.setItem('username', JSON.stringify(username))
+
+            setStore({
+                jwt: jwt,
+                role: role,
+                username: username,
+                isLoggedIn: isLoggedIn
             });
-            console.log('token from fetch', res.data)
-            // setRole(res.data.roles)
-            // setJwt(res.data.jwt)
-            // console.log('role from fetch', res.data.roles)
+            // console.log('store from login onsubmit', { jwt: jwt, role: role, username: username, isLoggedIn: isLoggedIn })
 
             if (res.data != null) {
                 if (res.data.roles === "[ROLE_ADMIN]") {
@@ -49,18 +63,10 @@ function Login() {
                 if (res.data.roles === "[ROLE_USER]") {
                     history.push("/user")
                 }
-
             }
         }).catch(err => {
             console.log(err.message)
         })
-
-
-    }
-
-
-    const updateName = (e) => {
-        setUsername(e.target.value)
     }
 
     return (
@@ -69,32 +75,35 @@ function Login() {
                 <h2 className="text-center">Log In</h2>
                 <Form.Group controlId="formBasicEmail">
                     <Form.Label>User Name</Form.Label>
-                    <Form.Control onChange={updateName} name="username" autoComplete="off" type="text" placeholder="Enter email" value={username} />
+                    <Form.Control
+                        onChange={e => setUsername(e.target.value)}
+                        name="username"
+                        autoComplete="off"
+                        type="text"
+                        placeholder="Enter email"
+                        value={username} />
                 </Form.Group>
 
                 <Form.Group controlId="formBasicPassword" className="mb-3">
                     <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" onChange={e => setPassword(e.target.value)} autoComplete="off" name="password" placeholder="Password" value={password} />
+                    <Form.Control
+                        onChange={e =>
+                            setPassword(e.target.value)}
+                        autoComplete="off"
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        value={password} />
                 </Form.Group>
 
-                <Button variant="dark" type="submit" style={{ width: 360 }}>Login</Button>
+                <Button
+                    variant="dark"
+                    type="submit"
+                    style={{ width: 360 }}>Login
+                </Button>
             </Form>
         </div>
     )
 }
-
-// const mapStateToProps = state => {
-//     return {
-//         token: state.token
-//     }
-// }
-
-// const mapDispatchToProps = dispatch => {
-//     return {
-//         loginActionCreater: (jwt) => dispatch(loginActionCreater(jwt))
-//     }
-// }
-
-// export default connect(mapStateToProps, mapDispatchToProps)(Login)
 
 export default Login

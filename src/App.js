@@ -8,7 +8,8 @@ import Landing from './components/Landing'
 import Footer from './components/shared/Footer'
 import AdminDashboard from './components/admin_dashboard/AdminDash'
 import UserDashboard from './components/user_dashboard/UserDash'
-import CheckingAccount from './components/checkingaccount/CheckingAccount'
+import CheckingAccount from './components/accounts/checkingaccount/CheckingAccount'
+
 function App() {
     return (
         <AuthorizationProvider>

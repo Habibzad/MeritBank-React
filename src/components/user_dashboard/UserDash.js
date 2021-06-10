@@ -1,34 +1,62 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useContext } from 'react'
+
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Link,
+    useRouteMatch
+} from "react-router-dom";
 import { AuthorizationContext } from '../../AuthorizationContext'
 import { Redirect } from 'react-router-dom'
 
-function UserDash() {
-    useEffect(() => {
-        console.log('user dash mounted')
-    })
+import { Jumbotron, Nav } from 'react-bootstrap'
 
-    const [auth, setAuth] = useContext(AuthorizationContext)
-    let isLoggedIn = auth.isLoggedIn;
-    let role = auth.role;
-    console.log(role)
-    const logout = () => {
-        setAuth({
-            jwt: '',
-            role: '',
-            isLoggedIn: false
-        })
+import CDOfferings from '../../components/cdofferings/CDOfferingList'
+import UserProfile from '../../components/user_dashboard/UserProfile'
+
+function UserDash() {
+
+    const [store] = useContext(AuthorizationContext)
+    const { url } = useRouteMatch();
+    let isLoggedIn = store.isLoggedIn;
+    let role = store.role;
+
+    if (isLoggedIn === null) {
+        if (!isLoggedIn) {
+            const localStore = JSON.parse(localStorage.getItem('login'))
+            isLoggedIn = localStore.login;
+        }
     }
 
-    console.log('auth comeing from admin dash', auth.isLoggedIn)
-
+    //Logged in initially false
     if (!isLoggedIn && role !== "[ROLE_ADMIN]") {
         return <Redirect to="/login" />
     }
 
+    const cdofferings = "/cdofferings"
     return (
-        <div>
+        <div className="container">
             <h1>User Dashboard</h1>
-            <button onClick={logout}>Logout</button>
+            <Router >
+                <Nav>
+                    <Link to={url}>Home</Link>
+                    <Link to={url + cdofferings}>Users</Link>
+                </Nav>
+                <Jumbotron>
+                    <h1>Hello, world!</h1>
+
+                    <Switch>
+                        <Route exact path={url}>
+                            <UserProfile />
+                        </Route>
+                        <Route path={url + cdofferings}>
+                            <CDOfferings />
+                        </Route>
+                    </Switch>
+
+                </Jumbotron>
+            </Router>
         </div>
     )
 }
